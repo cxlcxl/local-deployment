@@ -1,0 +1,116 @@
+version: "3.9"
+services:
+  redis:
+    container_name: redis6379
+    image: redis:5.0 # 指定的 docker 镜像
+    ports:
+      - "6379:6379"
+    networks:
+      - hicrm_docker
+    restart: always
+    volumes:
+      - "${ENV_CONFIG_PATH}/redis6379/redis.conf:/usr/local/etc/redis/redis.conf"
+      - "${ENV_CONFIG_PATH}/redis6379/log:/var/log/redis"
+      - "${ENV_CONFIG_PATH}/redis6379/data:/data/log/redis"
+    #command: redis-server /usr/local/etc/redis/redis.conf
+    sysctls:
+      - net.core.somaxconn=2048
+    tty: true # 不自动停止容器
+
+  nginx:
+    container_name: web_nginx
+    image: nginx:latest
+    #build:
+    #  context: ${IMAGES_WEB}
+    ports:
+      - "80:80"  # localhost
+      - "8001:8001" # housead
+      - "8002:8002" # wp
+      - "8003:8003"
+      - "8004:8004"
+      - "8005:8005"
+      - "8006:8006"
+      - "8007:8007"
+      - "8008:8008"
+      - "8009:8009"
+      - "8010:8010"
+      - "8081:8081"
+      - "8097:8097"
+      - "8098:8098"
+    networks:
+      - hicrm_docker
+    tty: true
+    volumes:
+      - "${ENV_CONFIG_PATH}/nginx:/etc/nginx/conf.d" # 映射所有配置文件
+      - "${WEB_ROOT}:/usr/share/nginx/html"
+      - "${ENV_CONFIG_PATH}/nginx/log:/var/log/nginx"
+    restart: always
+
+  #webserver:
+  #  container_name: ${SERVER_NAME}-${SERVER_VERSION}
+  #  build: # 构建镜像
+  #    context: ${IMAGES_SERVER} # 设定上下文目录为该参数的目录
+  #    #dockerfile: 此参数可以指定 dockerfile 文件，如不填写则是默认当前文件夹下的 Dockerfile
+  #  depends_on: # 在以下容器启动后才启动此容器
+  #    - redis
+  #    - web_nginx
+  #  ports:
+  #    - "${SERVER_PORT}:8088"
+  #  networks:
+  #    - hicrm_docker
+  #  tty: true
+  #  volumes:
+  #    - "${SERVER_ROOT}/config:/go/src/hicrm/config"
+  #    - "${SERVER_ROOT}/storage:/go/src/hicrm/storage"
+  #  restart: always
+
+  php74:
+   container_name: web_php74 # 容器名称，后期请不要使用版本信息作为
+   build:
+    context: ./php/7.4 #
+   #image: myphp:yaf # 自建镜像，通过 Dockerfile 构建，安装 yaf 扩展
+   networks:
+     - hicrm_docker
+   ports:
+     - "7400:9000"
+   restart: always
+   tty: true
+   volumes:
+     - "${WEB_ROOT}:/var/www/html"
+     - "${ENV_CONFIG_PATH}/php/7.4/php.ini:/usr/local/etc/php/php.ini"
+  
+  php70:
+   container_name: web_php70 # 容器名称，后期请不要使用版本信息作为
+   build:
+    context: ./php/7.0 #
+   #image: myphp:yaf # 自建镜像，通过 Dockerfile 构建，安装 yaf 扩展
+   networks:
+     - hicrm_docker
+   ports:
+     - "7000:9000"
+   restart: always
+   tty: true
+   volumes:
+     - "${WEB_ROOT}:/var/www/html"
+     - "${ENV_CONFIG_PATH}/php/7.0/php.ini:/usr/local/etc/php/php.ini"
+
+  mysql:
+    container_name: local_mysql
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+    ports:
+      - "3306:3306"
+    networks:
+      - hicrm_docker
+    tty: true
+    volumes:
+      - "${ENV_CONFIG_PATH}/mysql/my.cnf:/etc/mysql/conf.d/my.cnf"
+      - "${ENV_CONFIG_PATH}/mysql/data:/var/lib/mysql"
+    restart: always
+    command:
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+  
+networks:
+  hicrm_docker:

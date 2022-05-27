@@ -1,0 +1,4 @@
+/nginx/log/*
+.DS_Store
+.idea
+/mysql/data/*
