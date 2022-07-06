@@ -1,4 +1,5 @@
-/nginx/log/*
+/servers/nginx/log/*
 .DS_Store
 .idea
-/mysql/data/*
+/servers/mysql/data/*
+/projects/*
