@@ -79,36 +79,40 @@ services:
 
   python:
     container_name: local_python39
-    build:
-      context: ${PROJECT_IMAGES_BASH}/hidata
+    image: www_python:latest
+    #build:
+      #context: ${PROJECT_IMAGES_BASH}/hidata
     networks:
       - hicrm_docker
     ports:
       - "50000:50000"
     restart: always
+    depends_on:
+      - mysql
     tty: true
     volumes:
       - "${WEB_PATH}/hidata:/app/hidata"
-    command:
-      - "uwsgi --ini /app/hidata/serve/resources/uwsgi/uwsgi.dev.ini"
+    #command:
+      #- "uwsgi --ini /app/hidata/serve/resources/uwsgi/uwsgi.dev.ini"
 
-  #mysql:
-  #  container_name: local_mysql
-  #  image: mysql:latest
-  #  environment:
-  #    MYSQL_ROOT_PASSWORD: "root"
-  #  ports:
-  #    - "3306:3306"
-  #  networks:
-  #    - hicrm_docker
-  #  tty: true
-  #  volumes:
-  #    - "${SERVER_PATH}/mysql/my.cnf:/etc/mysql/conf.d/my.cnf"
-  #    - "${SERVER_PATH}/mysql/data:/var/lib/mysql"
-  #  restart: always
-  #  command:
-  #    - "--character-set-server=utf8mb4"
-  #    - "--collation-server=utf8mb4_unicode_ci"
+  mysql:
+    container_name: local_mysql
+    #image: mysql:latest
+    build:
+      context: ${SERVER_IMAGES_BASH}/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+    ports:
+      - "3306:3306"
+    networks:
+      - hicrm_docker
+    tty: true
+    volumes:
+      - "${SERVER_PATH}/mysql/my.cnf:/etc/mysql/conf.d/my.cnf"
+      - "${SERVER_PATH}/mysql/data:/var/lib/mysql"
+    restart: always
+    #command:
+      #- "mysqld --privileged=true --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
   
 networks:
   hicrm_docker:
