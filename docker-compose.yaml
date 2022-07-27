@@ -98,6 +98,25 @@ services:
     restart: always
     #command:
       #- "mysqld --privileged=true --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
+
+  etcd:
+    image: "k8s.gcr.io/etcd:3.4.13-0"
+    container_name: local_etcd
+    ports:
+      - "23800:2380"
+      - "23790:2379"
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_NAME=local_etcd
+      - ETCD_LISTEN_PEER_URLS=http://0.0.0.0:2380
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
+      - ETCD_ADVERTISE_CLIENT_URLS=http://192.168.120.61:23790
+      - ETCD_INITIAL_ADVERTISE_PEER_URLS=http://local_etcd:2380
+      #- ETCD_INITIAL_CLUSTER_TOKEN=etcd-cluster
+      #- ETCD_INITIAL_CLUSTER=etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380
+      #- ETCD_INITIAL_CLUSTER_STATE=new
+    command:
+      - "/usr/local/bin/etcd"
   
 networks:
   hicrm_docker:
