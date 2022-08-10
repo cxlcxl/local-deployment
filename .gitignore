@@ -3,3 +3,4 @@
 .idea
 /servers/mysql/data/*
 /projects/*
+/servers/jenkins/*
