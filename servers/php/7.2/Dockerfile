@@ -19,7 +19,6 @@ RUN pecl install mcrypt-1.0.3 && docker-php-ext-enable mcrypt
 
 RUN docker-php-ext-install pdo_mysql
 RUN docker-php-ext-install mysqli
-RUN chown -R www-data /var/www/html
 
 WORKDIR /var/www/html
 
